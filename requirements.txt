@@ -2,3 +2,5 @@ flask
 reportlab
 python-docx
 gunicorn
+gspread
+google-auth

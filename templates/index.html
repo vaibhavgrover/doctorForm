@@ -241,6 +241,12 @@
   <div class="card">
     <h2>&#128221; New Patient Entry</h2>
 
+    {% if sheet_error %}
+    <div class="errors-box" style="margin-bottom:1rem;">
+      <strong>Google Sheets error:</strong> {{ sheet_error }}
+    </div>
+    {% endif %}
+
     {% if errors %}
     <div class="errors-box">
       <ul>
