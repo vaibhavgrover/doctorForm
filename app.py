@@ -2,7 +2,9 @@ import os
 import csv
 import io
 import json
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+IST = timezone(timedelta(hours=5, minutes=30))
 from flask import Flask, render_template, request, make_response
 
 from reportlab.lib.pagesizes import A4
@@ -182,7 +184,7 @@ def generate():
         return render_template('index.html', entries=entries, errors=errors,
                                form_data=request.form, sheet_error=sheet_error), 400
 
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    timestamp = datetime.now(IST).strftime('%Y-%m-%d %H:%M:%S')
     append_entry({
         'Timestamp': timestamp,
         'Name': name,
