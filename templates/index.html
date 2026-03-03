@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Madhav Shrishti – Patient Form</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .page-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .site-header img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+    }
+    .site-header-text h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #2d3748;
+    }
+    .site-header-text p {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-top: 2px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    /* ── Form ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem 1.5rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .form-group.full-width { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.55rem 0.8rem;
+      border: 1.5px solid #cbd5e0;
+      border-radius: 8px;
+      font-size: 0.97rem;
+      color: #2d3748;
+      background: #f7fafc;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus {
+      border-color: #4299e1;
+      box-shadow: 0 0 0 3px rgba(66,153,225,.2);
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 68px; }
+
+    input.invalid, textarea.invalid {
+      border-color: #e53e3e;
+    }
+
+    /* ── Errors ── */
+    .errors-box {
+      background: #fff5f5;
+      border: 1.5px solid #fc8181;
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .errors-box ul {
+      margin-left: 1.2rem;
+    }
+    .errors-box li {
+      font-size: 0.9rem;
+      color: #c53030;
+      margin-bottom: 2px;
+    }
+
+    /* ── Buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1.4rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      font-size: 0.93rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.18s, transform 0.1s;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(.97); }
+
+    .btn-primary {
+      background: #3182ce;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #2b6cb0; }
+
+    .btn-success {
+      background: #38a169;
+      color: #fff;
+    }
+    .btn-success:hover { background: #2f855a; }
+
+    /* Loading spinner on submit */
+    .btn-primary .spinner {
+      display: none;
+      width: 15px;
+      height: 15px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-primary.loading .spinner { display: block; }
+    .btn-primary.loading .btn-label { opacity: 0.7; }
+
+    /* ── Table ── */
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    thead th {
+      background: #edf2f7;
+      color: #4a5568;
+      font-weight: 600;
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      border-bottom: 2px solid #e2e8f0;
+      white-space: nowrap;
+    }
+    tbody tr:nth-child(even) { background: #f7fafc; }
+    tbody td {
+      padding: 0.55rem 0.8rem;
+      border-bottom: 1px solid #e2e8f0;
+      color: #2d3748;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    tbody tr:hover { background: #ebf8ff; }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem;
+      color: #a0aec0;
+      font-size: 0.95rem;
+    }
+
+    .entry-count {
+      font-size: 0.82rem;
+      color: #718096;
+      margin-bottom: 0.8rem;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 560px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full-width { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <header class="site-header">
+    <img src="/static/doctor-symbol-b.png" alt="Madhav Shrishti" />
+    <div class="site-header-text">
+      <h1>Madhav Shrishti, Pattikalyana</h1>
+      <p>Dist. Panipat &mdash; Patient Registration</p>
+    </div>
+  </header>
+
+  <!-- Form Card -->
+  <div class="card">
+    <h2>&#128221; New Patient Entry</h2>
+
+    {% if errors %}
+    <div class="errors-box">
+      <ul>
+        {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <form id="entryForm" method="POST" action="/generate">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="e.g. Rahul Sharma"
+            value="{{ form_data.name if form_data else '' }}"
+            autocomplete="off"
+            class="{{ 'invalid' if errors else '' }}"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="age">Age</label>
+          <input
+            type="text"
+            id="age"
+            name="age"
+            placeholder="e.g. 35 years"
+            value="{{ form_data.age if form_data else '' }}"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input
+            type="date"
+            id="date"
+            name="date"
+            value="{{ form_data.date if form_data else '' }}"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="mobile">Mobile Number</label>
+          <input
+            type="tel"
+            id="mobile"
+            name="mobile"
+            placeholder="e.g. 9876543210"
+            value="{{ form_data.mobile if form_data else '' }}"
+            autocomplete="off"
+            maxlength="15"
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="address">Address</label>
+          <textarea
+            id="address"
+            name="address"
+            placeholder="House / Village / City, State"
+          >{{ form_data.address if form_data else '' }}</textarea>
+        </div>
+
+      </div>
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <span class="spinner"></span>
+          <span class="btn-label">&#128462; Generate PDF &amp; Download</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Entries History Card -->
+  <div class="card">
+    <h2>&#128203; Entry History</h2>
+
+    {% if entries %}
+    <p class="entry-count">{{ entries|length }} record{{ 's' if entries|length != 1 else '' }} saved</p>
+
+    <div style="margin-bottom: 1rem;">
+      <a href="/export-csv" class="btn btn-success">
+        &#11123; Export All as CSV
+      </a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Timestamp</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Date</th>
+            <th>Address</th>
+            <th>Mobile</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in entries | reverse %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ entry.Timestamp }}</td>
+            <td>{{ entry.Name }}</td>
+            <td>{{ entry.Age }}</td>
+            <td>{{ entry.Date }}</td>
+            <td title="{{ entry.Address }}">{{ entry.Address }}</td>
+            <td>{{ entry.Mobile }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      No entries yet. Fill in the form above to generate your first PDF.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+  // Set today's date as default
+  const dateInput = document.getElementById('date');
+  if (!dateInput.value) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+  }
+
+  // Show spinner on submit + reload page after PDF download
+  const form = document.getElementById('entryForm');
+  const btn  = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', function(e) {
+    // Client-side validation
+    const name    = form.name.value.trim();
+    const age     = form.age.value.trim();
+    const date    = form.date.value.trim();
+    const address = form.address.value.trim();
+    const mobile  = form.mobile.value.trim();
+
+    if (!name || !age || !date || !address || !mobile) {
+      // Let server handle it
+      return;
+    }
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    // After 3 seconds reload the page so the new entry appears in history
+    // The PDF download is triggered by the form POST (browser handles it)
+    setTimeout(function() {
+      window.location.reload();
+    }, 3500);
+  });
+</script>
+</body>
+</html>
