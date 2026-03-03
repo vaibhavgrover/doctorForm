@@ -29,33 +29,37 @@ SCOPES = [
     'https://www.googleapis.com/auth/drive',
 ]
 
+_sheet_cache = None
+
 
 def get_sheet():
+    global _sheet_cache
+    if _sheet_cache is not None:
+        return _sheet_cache
+
     creds_json = os.environ.get('GOOGLE_CREDENTIALS')
     if not creds_json:
-        raise RuntimeError('GOOGLE_CREDENTIALS environment variable is not set.')
+        raise RuntimeError('GOOGLE_CREDENTIALS is not configured.')
     creds_dict = json.loads(creds_json)
     creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SHEET_ID).sheet1
 
-    # Write header row if the sheet is empty
-    if sheet.row_count == 0 or sheet.cell(1, 1).value != 'Timestamp':
+    # Add header row if cell A1 is empty
+    if not sheet.cell(1, 1).value:
         sheet.insert_row(FIELDS, index=1)
 
+    _sheet_cache = sheet
     return sheet
 
 
 def read_entries():
-    sheet = get_sheet()
-    rows = sheet.get_all_records()   # list of dicts, skips header automatically
-    return rows
+    return get_sheet().get_all_records()
 
 
 def append_entry(data: dict):
-    sheet = get_sheet()
     row = [data.get(f, '') for f in FIELDS]
-    sheet.append_row(row, value_input_option='USER_ENTERED')
+    get_sheet().append_row(row, value_input_option='USER_ENTERED')
 
 
 def generate_pdf(name, age, date, address, mobile) -> bytes:
