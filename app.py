@@ -22,7 +22,7 @@ app = Flask(__name__)
 PDF_DIR    = os.path.join(os.path.dirname(__file__), 'generated_pdfs')
 DOCTOR_IMG = os.path.join(os.path.dirname(__file__), 'static', 'doctor-symbol-b.png')
 SHEET_ID   = '10coRevhuITB8RhqYGrUGCdDtuVC9eq1rynGMzDZ81s0'
-FIELDS     = ['Timestamp', 'Name', 'Age', 'Date', 'Address', 'Mobile']
+FIELDS     = ['Timestamp', 'Name', 'Age', 'Gender', 'Date', 'Address', 'Mobile']
 
 os.makedirs(PDF_DIR, exist_ok=True)
 
@@ -64,7 +64,7 @@ def append_entry(data: dict):
     get_sheet().append_row(row, value_input_option='USER_ENTERED')
 
 
-def generate_pdf(name, age, date, address, mobile) -> bytes:
+def generate_pdf(name, age, gender, date, address, mobile) -> bytes:
     buf = io.BytesIO()
 
     LEFT  = 2.54 * cm
@@ -125,6 +125,7 @@ def generate_pdf(name, age, date, address, mobile) -> bytes:
 
     story.append(field_line('Name:', name))
     story.append(field_line('Age:', age))
+    story.append(field_line('Gender:', gender))
     story.append(field_line('Date:', date))
     story.append(field_line('Address:', address))
     story.append(field_line('Mobile:', mobile))
@@ -163,6 +164,7 @@ def index():
 def generate():
     name    = request.form.get('name', '').strip()
     age     = request.form.get('age', '').strip()
+    gender  = request.form.get('gender', '').strip()
     date    = request.form.get('date', '').strip()
     address = request.form.get('address', '').strip()
     mobile  = request.form.get('mobile', '').strip()
@@ -170,6 +172,7 @@ def generate():
     errors = []
     if not name:    errors.append('Name is required.')
     if not age:     errors.append('Age is required.')
+    if not gender:  errors.append('Gender is required.')
     if not date:    errors.append('Date is required.')
     if not address: errors.append('Address is required.')
     if not mobile:  errors.append('Mobile number is required.')
@@ -189,12 +192,13 @@ def generate():
         'Timestamp': timestamp,
         'Name': name,
         'Age': age,
+        'Gender': gender,
         'Date': date,
         'Address': address,
         'Mobile': mobile,
     })
 
-    pdf_bytes = generate_pdf(name, age, date, address, mobile)
+    pdf_bytes = generate_pdf(name, age, gender, date, address, mobile)
 
     safe_name    = ''.join(c if c.isalnum() else '_' for c in name)
     pdf_filename = f'{safe_name}_{timestamp.replace(":", "-").replace(" ", "_")}.pdf'

@@ -86,7 +86,7 @@
       letter-spacing: .04em;
     }
 
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 0.55rem 0.8rem;
       border: 1.5px solid #cbd5e0;
@@ -98,7 +98,7 @@
       outline: none;
       font-family: inherit;
     }
-    input:focus, textarea:focus {
+    input:focus, textarea:focus, select:focus {
       border-color: #4299e1;
       box-shadow: 0 0 0 3px rgba(66,153,225,.2);
       background: #fff;
@@ -284,6 +284,16 @@
         </div>
 
         <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender">
+            <option value="" disabled {% if not form_data or not form_data.gender %}selected{% endif %}>Select gender</option>
+            <option value="Male"   {% if form_data and form_data.gender == 'Male' %}selected{% endif %}>Male</option>
+            <option value="Female" {% if form_data and form_data.gender == 'Female' %}selected{% endif %}>Female</option>
+            <option value="Other"  {% if form_data and form_data.gender == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label for="date">Date</label>
           <input
             type="date"
@@ -347,6 +357,7 @@
             <th>Timestamp</th>
             <th>Name</th>
             <th>Age</th>
+            <th>Gender</th>
             <th>Date</th>
             <th>Address</th>
             <th>Mobile</th>
@@ -359,6 +370,7 @@
             <td>{{ entry.Timestamp }}</td>
             <td>{{ entry.Name }}</td>
             <td>{{ entry.Age }}</td>
+            <td>{{ entry.Gender }}</td>
             <td>{{ entry.Date }}</td>
             <td title="{{ entry.Address }}">{{ entry.Address }}</td>
             <td>{{ entry.Mobile }}</td>
