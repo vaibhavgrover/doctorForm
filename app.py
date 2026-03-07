@@ -135,7 +135,7 @@ def generate_pdf(name, age, gender, date, address, mobile) -> bytes:
 
     def draw_signature(canvas, doc):
         canvas.saveState()
-        sig_y  = 1.8 * cm
+        sig_y  = H * 0.20
         line_y = sig_y + 0.5 * cm
         x_right = W - RIGHT
         x_left  = x_right - 5 * cm
