@@ -53,9 +53,14 @@ def get_sheet():
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SHEET_ID).sheet1
 
-    # Add header row if cell A1 is empty
-    if not sheet.cell(1, 1).value:
+    # Add header row if empty, or patch any missing columns
+    existing = sheet.row_values(1)
+    if not existing:
         sheet.insert_row(FIELDS, index=1)
+    else:
+        for i, field in enumerate(FIELDS):
+            if i >= len(existing) or existing[i] != field:
+                sheet.update_cell(1, i + 1, field)
 
     _sheet_cache = sheet
     return sheet
