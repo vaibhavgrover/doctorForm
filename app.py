@@ -22,7 +22,13 @@ app = Flask(__name__)
 PDF_DIR    = os.path.join(os.path.dirname(__file__), 'generated_pdfs')
 DOCTOR_IMG = os.path.join(os.path.dirname(__file__), 'static', 'doctor-symbol-b.png')
 SHEET_ID   = '10coRevhuITB8RhqYGrUGCdDtuVC9eq1rynGMzDZ81s0'
-FIELDS     = ['Timestamp', 'Name', 'Age', 'Gender', 'Date', 'Address', 'Mobile']
+FIELDS     = ['Timestamp', 'Name', 'Age', 'Gender', 'Date', 'Address', 'Mobile', 'Doctor']
+
+DOCTORS = {
+    'Dr. RC Roy':            {'degree': 'M.S. Surgery',  'reg': 'Reg. No. 8054 BIHAR'},
+    'Dr. Nirmal Khandelwal': {'degree': 'M.D. Medicine', 'reg': 'Reg. No. HN 162'},
+    'Dr. Ravinder':          {'degree': 'M.B.B.S',       'reg': 'Reg. No. HN 24930'},
+}
 
 os.makedirs(PDF_DIR, exist_ok=True)
 
@@ -64,7 +70,7 @@ def append_entry(data: dict):
     get_sheet().append_row(row, value_input_option='USER_ENTERED')
 
 
-def generate_pdf(name, age, gender, date, address, mobile) -> bytes:
+def generate_pdf(name, age, gender, date, address, mobile, doctor) -> bytes:
     buf = io.BytesIO()
 
     LEFT  = 2.54 * cm
@@ -133,16 +139,30 @@ def generate_pdf(name, age, gender, date, address, mobile) -> bytes:
     story.append(Spacer(1, 0.3 * cm))
     story.append(HRFlowable(width='100%', thickness=0.5, color=colors.grey, spaceAfter=6))
 
+    doc_info = DOCTORS.get(doctor, {})
+    doc_degree = doc_info.get('degree', '')
+    doc_reg    = doc_info.get('reg', '')
+
     def draw_signature(canvas, doc):
         canvas.saveState()
-        sig_y  = H * 0.20
-        line_y = sig_y + 0.5 * cm
         x_right = W - RIGHT
-        x_left  = x_right - 5 * cm
+        x_left  = x_right - 6 * cm
+
+        # Three lines of text, stacked upward from 20% height
+        line_height = 0.55 * cm
+        reg_y    = H * 0.20
+        degree_y = reg_y    + line_height
+        name_y   = degree_y + line_height
+        rule_y   = name_y   + 0.5 * cm
+
         canvas.setLineWidth(0.5)
-        canvas.line(x_left, line_y, x_right, line_y)
-        canvas.setFont('Helvetica', 11)
-        canvas.drawRightString(x_right, sig_y, "Doctor's Signature")
+        canvas.line(x_left, rule_y, x_right, rule_y)
+
+        canvas.setFont('Helvetica-Bold', 11)
+        canvas.drawRightString(x_right, name_y, doctor)
+        canvas.setFont('Helvetica', 10)
+        canvas.drawRightString(x_right, degree_y, doc_degree)
+        canvas.drawRightString(x_right, reg_y, doc_reg)
         canvas.restoreState()
 
     doc.build(story, onFirstPage=draw_signature, onLaterPages=draw_signature)
@@ -168,6 +188,7 @@ def generate():
     date    = request.form.get('date', '').strip()
     address = request.form.get('address', '').strip()
     mobile  = request.form.get('mobile', '').strip()
+    doctor  = request.form.get('doctor', '').strip()
 
     errors = []
     if not name:    errors.append('Name is required.')
@@ -176,6 +197,7 @@ def generate():
     if not date:    errors.append('Date is required.')
     if not address: errors.append('Address is required.')
     if not mobile:  errors.append('Mobile number is required.')
+    if not doctor:  errors.append('Doctor is required.')
 
     if errors:
         try:
@@ -196,9 +218,10 @@ def generate():
         'Date': date,
         'Address': address,
         'Mobile': mobile,
+        'Doctor': doctor,
     })
 
-    pdf_bytes = generate_pdf(name, age, gender, date, address, mobile)
+    pdf_bytes = generate_pdf(name, age, gender, date, address, mobile, doctor)
 
     safe_name    = ''.join(c if c.isalnum() else '_' for c in name)
     pdf_filename = f'{safe_name}_{timestamp.replace(":", "-").replace(" ", "_")}.pdf'
