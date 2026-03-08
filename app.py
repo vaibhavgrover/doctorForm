@@ -28,6 +28,8 @@ DOCTORS = {
     'Dr. RC Roy':            {'degree': 'M.S. Surgery',  'reg': 'Reg. No. 8054 BIHAR'},
     'Dr. Nirmal Khandelwal': {'degree': 'M.D. Medicine', 'reg': 'Reg. No. HN 162'},
     'Dr. Ravinder':          {'degree': 'M.B.B.S',       'reg': 'Reg. No. HN 24930'},
+    'Dr. Ankur Singhal':     {'degree': 'Homeopathy',    'reg': ''},
+    'Dr. Baldev Kumar':      {'degree': 'Ayurveda',      'reg': ''},
 }
 
 os.makedirs(PDF_DIR, exist_ok=True)
@@ -167,7 +169,8 @@ def generate_pdf(name, age, gender, date, address, mobile, doctor) -> bytes:
         canvas.drawRightString(x_right, name_y, doctor)
         canvas.setFont('Helvetica', 10)
         canvas.drawRightString(x_right, degree_y, doc_degree)
-        canvas.drawRightString(x_right, reg_y, doc_reg)
+        if doc_reg:
+            canvas.drawRightString(x_right, reg_y, doc_reg)
         canvas.restoreState()
 
     doc.build(story, onFirstPage=draw_signature, onLaterPages=draw_signature)

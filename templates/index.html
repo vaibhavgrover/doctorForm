@@ -342,7 +342,7 @@
           <label for="doctor">Doctor</label>
           <select id="doctor" name="doctor">
             <option value="" disabled {% if not form_data or not form_data.doctor %}selected{% endif %}>Select doctor</option>
-            {% set docs = ['Dr. RC Roy', 'Dr. Nirmal Khandelwal', 'Dr. Ravinder'] %}
+            {% set docs = ['Dr. RC Roy', 'Dr. Nirmal Khandelwal', 'Dr. Ravinder', 'Dr. Ankur Singhal', 'Dr. Baldev Kumar'] %}
             {% for d in docs %}
             <option value="{{ d }}" {% if form_data and form_data.doctor == d %}selected{% endif %}>{{ d }}</option>
             {% endfor %}
