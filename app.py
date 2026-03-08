@@ -22,7 +22,7 @@ app = Flask(__name__)
 PDF_DIR    = os.path.join(os.path.dirname(__file__), 'generated_pdfs')
 DOCTOR_IMG = os.path.join(os.path.dirname(__file__), 'static', 'doctor-symbol-b.png')
 SHEET_ID   = '10coRevhuITB8RhqYGrUGCdDtuVC9eq1rynGMzDZ81s0'
-FIELDS     = ['Timestamp', 'Name', 'Age', 'Gender', 'Date', 'Address', 'Mobile', 'Doctor']
+FIELDS     = ['Timestamp', 'Name', 'Age', 'Gender', 'Date', 'Address', 'Mobile', 'Doctor', 'Category', 'Prant', 'Dayitva']
 
 DOCTORS = {
     'Dr. RC Roy':            {'degree': 'M.S. Surgery',  'reg': 'Reg. No. 8054 BIHAR'},
@@ -193,16 +193,20 @@ def generate():
     date    = request.form.get('date', '').strip()
     address = request.form.get('address', '').strip()
     mobile  = request.form.get('mobile', '').strip()
-    doctor  = request.form.get('doctor', '').strip()
+    doctor   = request.form.get('doctor', '').strip()
+    category = request.form.get('category', '').strip()
+    prant    = request.form.get('prant', '').strip()
+    dayitva  = request.form.get('dayitva', '').strip()
 
     errors = []
-    if not name:    errors.append('Name is required.')
-    if not age:     errors.append('Age is required.')
-    if not gender:  errors.append('Gender is required.')
-    if not date:    errors.append('Date is required.')
-    if not address: errors.append('Address is required.')
-    if not mobile:  errors.append('Mobile number is required.')
-    if not doctor:  errors.append('Doctor is required.')
+    if not name:     errors.append('Name is required.')
+    if not age:      errors.append('Age is required.')
+    if not gender:   errors.append('Gender is required.')
+    if not date:     errors.append('Date is required.')
+    if not address:  errors.append('Address is required.')
+    if not mobile:   errors.append('Mobile number is required.')
+    if not doctor:   errors.append('Doctor is required.')
+    if not category: errors.append('Category is required.')
 
     if errors:
         try:
@@ -224,6 +228,9 @@ def generate():
         'Address': address,
         'Mobile': mobile,
         'Doctor': doctor,
+        'Category': category,
+        'Prant': prant,
+        'Dayitva': dayitva,
     })
 
     pdf_bytes = generate_pdf(name, age, gender, date, address, mobile, doctor)
